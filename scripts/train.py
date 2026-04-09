@@ -6,6 +6,8 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.model import HousingPriceModel
+from app.s3_utils import S3Utils
+from app.config import Config
 
 def generate_data():
     np.random.seed(42)
@@ -20,18 +22,28 @@ def generate_data():
     return X, y
 
 def main():
-    print("Entrenando modelo...")
-    X, y = generate_data()
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+    print("🚀 Iniciando entrenamiento...")
     
+    # Inicializar S3
+    s3 = S3Utils()
+    
+    # Generar o cargar datos
+    X, y = generate_data()
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    
+    # Entrenar
     model = HousingPriceModel()
     metrics = model.train(X_train, y_train)
     
-    os.makedirs('model', exist_ok=True)
-    model.save('model/model.pkl')
+    # Guardar localmente
+    os.makedirs('models', exist_ok=True)
+    model.save('models/model.pkl')
+    print(f"📊 Score: {metrics['score']}")
     
-    print(f"Modelo guardado. Score: {metrics['score']}")
-    return metrics
+    # Subir a S3
+    s3.upload_file('models/model.pkl', Config.MODEL_PATH)
+    
+    print("✅ Entrenamiento completado!")
 
 if __name__ == "__main__":
     main()
