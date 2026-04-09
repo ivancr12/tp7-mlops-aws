@@ -27,5 +27,8 @@ API de Machine Learning para predicción de precios de viviendas con:
 ## CI/CD
 El pipeline se ejecuta en cada push y entrena/subel modelo a S3 automáticamente.
 
-## Autor
+
 Ivan Cespedes
+
+## URL de la API desplegada
+Próximamente: https://tp7-mlops-api.onrender.com
